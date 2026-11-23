@@ -144,3 +144,12 @@ strong,b,th,.btn,.faq summary,.nav a[aria-current="page"]{font-weight:500}
 .rank-table td{line-height:1.65}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media (max-width:640px){.rank-table{font-size:0.92rem}.rank-table thead th:first-child{width:6em}.rank-table th:first-child{position:sticky;left:0;z-index:1}}
+/* 역대 주임교수·역대 동문회장: 사진을 키운 2열 목록 (왼쪽 1대, 오른쪽 2대 순서) */
+.people-grid{list-style:none;margin:1rem 0 1.5rem;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--border);border-left:1px solid var(--border);background:var(--surface)}
+.people-grid li{display:flex;align-items:center;gap:1.2rem;margin:0;padding:1rem 1.2rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.people-grid img{flex:none;width:150px;height:200px;object-fit:cover;background:var(--bg)}
+.people-text{display:flex;flex-direction:column;gap:0.2rem}
+.people-term{color:var(--muted);font-size:0.95rem}
+.people-name{font-size:1.3rem;font-weight:500}
+.people-period{font-variant-numeric:tabular-nums}
+@media (max-width:640px){.people-grid li{flex-direction:column;align-items:flex-start;gap:0.5rem;padding:0.8rem}.people-grid img{width:100%;max-width:150px;height:auto;aspect-ratio:3/4}.people-name{font-size:1.1rem}}
