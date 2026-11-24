@@ -153,3 +153,69 @@ strong,b,th,.btn,.faq summary,.nav a[aria-current="page"]{font-weight:500}
 .people-name{font-size:1.3rem;font-weight:500}
 .people-period{font-variant-numeric:tabular-nums}
 @media (max-width:640px){.people-grid li{flex-direction:column;align-items:flex-start;gap:0.5rem;padding:0.8rem}.people-grid img{width:100%;max-width:150px;height:auto;aspect-ratio:3/4}.people-name{font-size:1.1rem}}
+
+/* ---- 2026-11-24 추가: 로고, 첫 화면, 바닥글, 행사, 조직도, 교수진 사진, 동문회 인용 ---- */
+.brand img{height:40px;width:auto}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand img,:root:not([data-theme="light"]) .footer-logo-dept{filter:brightness(0) invert(1)}}
+:root[data-theme="dark"] .brand img,:root[data-theme="dark"] .footer-logo-dept{filter:brightness(0) invert(1)}
+.hero{background:linear-gradient(90deg,rgba(7,34,52,.93) 0%,rgba(11,61,91,.86) 55%,rgba(11,61,91,.74) 100%),url(events/hero-css2026.jpg) center 35%/cover no-repeat;padding:4.5rem 0 4rem}
+.hero .container{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:3rem;align-items:center}
+.hero .hero-logo{grid-row:1/span 3;height:170px;width:auto}
+.hero h1,.hero .lead,.hero .btns{grid-column:2}
+@media (max-width:760px){.hero{padding:2.5rem 0}.hero .container{grid-template-columns:1fr}.hero .hero-logo{grid-row:auto;height:96px;margin-bottom:1.2rem}.hero h1,.hero .lead,.hero .btns{grid-column:1}}
+.home-event{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:1.5rem;align-items:center;margin:1rem 0 1.5rem}
+.home-event img{display:block;width:100%;height:auto;border-radius:6px}
+.home-event h3{margin-top:0}
+@media (max-width:640px){.home-event{grid-template-columns:1fr}}
+.footer-logos{grid-column:1/-1;display:flex;align-items:center;gap:1.6rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.footer-logos img{display:block;height:56px;width:auto}
+.footer-logos a img{height:50px}
+/* 행사 */
+.event-head{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:2rem;align-items:start;margin:1rem 0 1.5rem}
+.event-info{margin:0;display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:0.5rem 1rem}
+.event-info dt{color:var(--muted);font-weight:500}
+.event-info dd{margin:0}
+.event-info ul{margin:0;padding-left:1.1em}
+.event-doc{margin:0}
+.event-doc img{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:4px}
+.event-group{margin:1rem 0}
+.event-group img{display:block;width:100%;height:auto;border-radius:6px}
+.gallery{list-style:none;padding:0;margin:1rem 0 2.5rem;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem 0.8rem}
+.gallery li{margin:0}
+.gallery img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:4px}
+.gallery span{display:block;margin-top:0.35rem;font-size:0.9rem;line-height:1.45;color:var(--muted)}
+@media (max-width:760px){.event-head{grid-template-columns:1fr}.event-doc{max-width:260px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* 조직도 */
+.org{margin:1rem 0 1.5rem;text-align:center}
+.org-box{display:inline-block;text-align:left;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--primary);border-radius:var(--radius);padding:0.8rem 1rem;min-width:12rem}
+.org-role{display:block;color:var(--primary);font-weight:500;font-size:0.95rem;margin-bottom:0.2rem}
+.org-box strong{font-size:1.25rem;font-weight:500}
+.org-note{display:block;color:var(--muted);font-size:0.9rem}
+.org-top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center}
+.org-top .org-head{grid-column:2}
+.org-top .org-audit{grid-column:3;justify-self:start;margin-left:2.5rem;position:relative;min-width:9rem}
+.org-top .org-audit::before{content:"";position:absolute;left:-2.5rem;top:50%;width:2.5rem;border-top:2px dashed var(--border)}
+.org-audit{border-top-color:var(--accent)}
+.org-v{width:2px;height:1.6rem;background:var(--border);margin:0 auto}
+.org-wide{display:block;max-width:40rem;margin:0 auto}
+.org-list{list-style:none;margin:0.3rem 0 0;padding:0}
+.org-list li{display:flex;gap:0.8rem;padding:0.35rem 0;border-top:1px solid var(--border);margin:0}
+.org-list li:first-child{border-top:0}
+.org-list li span{flex:none;width:8.5em;color:var(--muted)}
+.org-split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;position:relative;padding-top:1.6rem;text-align:left}
+.org-split::before{content:"";position:absolute;top:0;left:25%;right:25%;height:1.6rem;border:2px solid var(--border);border-bottom:0}
+.org-split .org-box{display:block}
+.org-date{color:var(--muted);font-size:0.9rem;text-align:right;margin:0.6rem 0 0}
+@media (max-width:640px){.org-split{grid-template-columns:1fr;padding-top:0;gap:0.8rem}.org-split::before{display:none}.org-top{grid-template-columns:1fr;gap:0.8rem}.org-top .org-head,.org-top .org-audit{grid-column:1;margin-left:0}.org-top .org-audit::before{display:none}.org-box{min-width:0;width:100%}.org-list li span{width:7em}}
+/* 교수진 사진 */
+.fac-list{display:flex;flex-wrap:wrap;gap:0.7rem 0.6rem}
+.fac{margin:0;width:56px;text-align:center}
+.fac img{display:block;width:56px;height:75px;object-fit:cover;background:var(--bg);border-radius:3px}
+.fac figcaption{margin-top:0.25rem;font-size:0.88rem;line-height:1.3;word-break:keep-all;color:var(--text)}
+.fac-chair{display:block;font-size:0.78rem;color:var(--primary)}
+/* 동문회 인용 */
+.quote{margin:1.2rem 0 1.5rem}
+.quote blockquote{margin:0;border-left:4px solid var(--primary);padding:0.3rem 1rem;font-size:1.12rem;color:var(--text)}
+.quote blockquote p{margin:0}
+.quote figcaption{padding-left:1.25rem;margin-top:0.4rem}
+main:has(> .hero:first-child){padding-top:0}
