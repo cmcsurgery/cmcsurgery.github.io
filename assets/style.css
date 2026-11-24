@@ -389,3 +389,27 @@ main:has(> .hero:first-child){padding-top:0}
 .gnb-top{padding:0 1.25rem}
 .gnb-top{white-space:nowrap}
 @media (min-width:1024px) and (max-width:1199px){.hdr-util{display:none}.hdr-name small{display:none}.gnb-top{padding:0 1rem}}
+/* 조직도(2026-11-24 고침): 주임교수 아래 임상과장·학과장, 실무위원회는 줄기에서 옆으로 */
+.org2 .o-mid{display:grid;grid-template-columns:minmax(0,1fr) 2px minmax(0,1fr);align-items:center}
+.org2 .o-trunk{grid-column:2;grid-row:1;align-self:stretch;background:var(--border);min-height:2.4rem}
+.org2 .o-cmt{grid-column:3;grid-row:1;display:block;position:relative;margin:1.4rem 0 1.4rem 2.4rem;min-width:0;border-top-color:var(--accent)}
+.org2 .o-cmt::before{content:"";position:absolute;left:calc(-2.4rem - 1px);top:50%;width:2.4rem;border-top:2px solid var(--border)}
+.org2 .org-split{padding-top:1.6rem}
+.cmt{padding:0.55rem 0;border-top:1px solid var(--border)}
+.cmt:first-of-type{border-top:0;padding-top:0.2rem}
+.cmt-name{margin:0 0 0.15rem;font-weight:500;color:var(--text)}
+.cmt-row{margin:0;font-size:0.92rem;line-height:1.6}
+.cmt-k{display:inline-block;min-width:3.2em;color:var(--muted);margin-right:0.35rem}
+.cmt-sep{display:inline-block;width:1.2rem}
+@media (max-width:760px){
+  .org2 .o-mid{grid-template-columns:2px minmax(0,1fr);margin-left:1rem}
+  .org2 .o-trunk{grid-column:1}
+  .org2 .o-cmt{grid-column:2;margin:1rem 0 1rem 1.2rem}
+  .org2 .o-cmt::before{left:calc(-1.2rem - 1px);width:1.2rem}
+  .org2 .org-top .org-head{margin-left:0}
+}
+.org2 .o-cmt{grid-column:1;margin:1.4rem 2.4rem 1.4rem 0}
+.org2 .o-cmt::before{left:auto;right:calc(-2.4rem - 1px)}
+.cmt-mem{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start}
+@media (max-width:760px){.org2 .o-cmt{grid-column:2;margin:1rem 0 1rem 1.2rem}.org2 .o-cmt::before{right:auto;left:calc(-1.2rem - 1px)}}
+@media (max-width:760px){.org2 .o-cmt{width:auto;min-width:0}}
