@@ -219,3 +219,5 @@ strong,b,th,.btn,.faq summary,.nav a[aria-current="page"]{font-weight:500}
 .quote blockquote p{margin:0}
 .quote figcaption{padding-left:1.25rem;margin-top:0.4rem}
 main:has(> .hero:first-child){padding-top:0}
+.alumni-link{display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem 1rem;margin:1rem 0 1.4rem}
+.alumni-url{color:var(--muted);font-size:0.95rem}
