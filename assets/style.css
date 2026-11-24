@@ -381,3 +381,11 @@ main:has(> .hero:first-child){padding-top:0}
 @media (max-width:760px){.contact-cards{grid-template-columns:1fr}}
 .nm-short{display:none}
 @media (max-width:560px){.nm-full{display:none}.nm-short{display:inline}.hdr-in{gap:0.6rem}.hdr-logo{gap:0.5rem;min-width:0}.hdr-logo img{height:32px}.hdr-name strong{font-size:0.98rem;white-space:nowrap}}
+/* 전공의 현황 */
+.res-table{max-width:42rem}
+.res-table thead th:first-child{width:7.5em}
+.res-table th[scope="rowgroup"]{background:var(--bg);vertical-align:middle;text-align:center;font-weight:500;color:var(--primary)}
+.res-n{display:block;font-size:0.85rem;font-weight:400;color:var(--muted)}
+.gnb-top{padding:0 1.25rem}
+.gnb-top{white-space:nowrap}
+@media (min-width:1024px) and (max-width:1199px){.hdr-util{display:none}.hdr-name small{display:none}.gnb-top{padding:0 1rem}}
