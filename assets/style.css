@@ -422,3 +422,18 @@ main:has(> .hero:first-child){padding-top:0}
 .year-tabs [role="tab"][aria-selected="true"]{background:var(--surface);color:var(--primary);border-color:var(--primary);border-bottom:2px solid var(--surface);box-shadow:inset 0 3px 0 var(--primary)}
 .year-panel>h2:first-child{margin-top:1.2rem}
 .event-info dt{white-space:nowrap}
+
+/* 교실 소식 (2026-11-25) */
+.news-list{margin:0;border-top:2px solid var(--text)}
+.news-list li{margin:0;padding:0}
+.news-list a{display:block;padding:1.1rem 0.3rem;color:var(--text);text-decoration:none}
+.news-list a:hover .nl-title,.news-list a:focus-visible .nl-title{color:var(--primary);text-decoration:underline;text-underline-offset:0.2em}
+.news-list time{display:block;margin:0 0 0.3rem;font-size:0.9rem}
+.nl-title{display:block;font-size:1.15rem;font-weight:700;line-height:1.45}
+.nl-sum{display:block;margin-top:0.35rem;color:var(--muted);font-size:0.97rem;line-height:1.65}
+.home-news .news-list{border-top-width:1px}
+.home-more{margin:1rem 0 0}
+.post-meta{display:flex;flex-wrap:wrap;gap:0.2rem 1rem;margin:0 0 1.8rem;color:var(--muted);font-size:0.95rem}
+.post-body{max-width:46rem}
+.post-body p{line-height:1.9}
+.post-nav{max-width:46rem;margin-top:2.4rem;padding-top:1.2rem;border-top:1px solid var(--border)}
