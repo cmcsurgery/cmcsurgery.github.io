@@ -461,3 +461,14 @@ main:has(> .hero:first-child){padding-top:0}
 .org3 .org-split{gap:0.8rem;padding-top:0;margin-top:0.8rem}
 .org3 .org-split::after{display:none}
 .org3 .o-cmt3{margin-top:0.8rem}}
+/* 지난 행사 사진·연혁 (2026-11-25) */
+.ev-index{font-size:0.92rem;line-height:1.9;color:var(--muted);margin:0.4rem 0 1.4rem}
+.ev-index a{color:var(--text)}
+.ev-meta{color:var(--muted);font-size:0.95rem;margin:-0.2rem 0 0.4rem}
+.year-panel h3{margin-top:2rem}
+.gallery li.doc img{object-fit:contain;background:#fff;border:1px solid var(--border)}
+.event-head-solo{grid-template-columns:1fr}
+.hist-nav{font-size:0.95rem;line-height:1.9}
+.hist-table th[scope=row]{white-space:nowrap;font-weight:500;width:5.5em;vertical-align:top}
+.hist-table td ul{margin:0;padding-left:1.1em}
+.hist-table td li{margin:0.1rem 0}

@@ -17,7 +17,10 @@
       t.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){var n=yt[(i+(e.key==='ArrowRight'?1:yt.length-1))%yt.length];sel(n.getAttribute('aria-controls'),true);e.preventDefault();}});
     });
     var h=decodeURIComponent(location.hash.slice(1));
-    sel(yt.some(function(t){return t.getAttribute('aria-controls')===h;})?h:yt[0].getAttribute('aria-controls'));
+    var tg=h?document.getElementById(h):null,pn=tg&&tg.closest?tg.closest('.year-panel'):null;
+    sel(pn?pn.id:(yt.some(function(t){return t.getAttribute('aria-controls')===h;})?h:yt[0].getAttribute('aria-controls')));
+    if(pn&&tg!==pn){setTimeout(function(){tg.scrollIntoView();},0);}
+    document.addEventListener('click',function(ev){var a=ev.target.closest?ev.target.closest('a[href^="#"]'):null;if(!a)return;var id=decodeURIComponent(a.getAttribute('href').slice(1));var t2=document.getElementById(id);var p2=t2&&t2.closest?t2.closest('.year-panel'):null;if(p2&&p2.hidden){sel(p2.id);}});
     window.addEventListener('hashchange',function(){var h2=decodeURIComponent(location.hash.slice(1));if(yt.some(function(t){return t.getAttribute('aria-controls')===h2;})){sel(h2);}});
   }
 })();
