@@ -442,3 +442,22 @@ main:has(> .hero:first-child){padding-top:0}
 .div-greet .greet-text{max-width:46rem}
 .div-greet .greet-text p:first-child{margin-top:0}
 @media (max-width:760px){.div-greet.greet{grid-template-columns:1fr;gap:1.2rem}.div-greet .greet-photo{max-width:150px}}
+/* 조직도(2026-11-25 고침): 실무위원회를 아래 가로 띠로 두고 주임교수 줄기에 바로 잇는다. 간사는 이름과 붙이고 위원장과는 띄운다 */
+.org3 .org-v{height:2rem}
+.org3 .org-split{gap:2.4rem;padding-top:1.6rem}
+.org3 .org-split::before{left:calc(25% - 0.6rem);right:calc(25% - 0.6rem)}
+.org3 .org-split::after{content:"";position:absolute;left:calc(50% - 1px);top:0;bottom:-2rem;width:2px;background:var(--border)}
+.org3 .o-cmt3{display:block;margin-top:2rem;min-width:0;border-top-color:var(--accent);text-align:left}
+.cmt3-row{display:grid;grid-template-columns:8em 7.2em 10.8em minmax(0,1fr);column-gap:1.4rem;align-items:baseline;padding:0.5rem 0;border-top:1px solid var(--border);font-size:0.92rem;line-height:1.6}
+.cmt3-row:first-child{border-top:0;padding-top:0.3rem}
+.cmt3-row p{margin:0}
+.cmt3-name{font-weight:500;color:var(--text);font-size:1rem}
+.ck{color:var(--muted);margin-right:0.3em}
+.cmt3-mem{display:grid;grid-template-columns:auto minmax(0,1fr)}
+@media (max-width:900px){.cmt3-row{grid-template-columns:max-content minmax(0,1fr);column-gap:2rem;row-gap:0.15rem}
+.cmt3-name,.cmt3-mem{grid-column:1/-1}
+.cmt3-sec:empty{display:none}}
+@media (max-width:640px){.org3 .org-v{display:none}
+.org3 .org-split{gap:0.8rem;padding-top:0;margin-top:0.8rem}
+.org3 .org-split::after{display:none}
+.org3 .o-cmt3{margin-top:0.8rem}}
