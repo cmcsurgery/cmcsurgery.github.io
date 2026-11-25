@@ -437,3 +437,6 @@ main:has(> .hero:first-child){padding-top:0}
 .post-body{max-width:46rem}
 .post-body p{line-height:1.9}
 .post-nav{max-width:46rem;margin-top:2.4rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+/* 분과 학과장 인사말 */
+.div-greet{max-width:52rem}
+.div-greet p:first-child{margin-top:0}
