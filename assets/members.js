@@ -275,10 +275,11 @@ async function adminMembers(area, notice) {
     h('tbody', {}, rows.map(r => h('tr', { class: r.approved ? null : 'is-off' }, h('td', {}, r.loginId), h('td', {}, r.memo || ''), h('td', {}, r.approved ? '열람 가능' : '중지'), h('td', {}, fmtDate(r.createdAt)),
       h('td', { class: 'ad-actions' },
         h('button', { type: 'button', class: 'mb-link' + (r.approved ? ' danger' : ''), onclick: async () => { try { await updateDoc(doc(db, 'members', r.uid), { approved: !r.approved }); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, r.approved ? '중지' : '다시 허용'), ' ',
-        h('button', { type: 'button', class: 'mb-link', onclick: async () => { const m = prompt('메모를 고쳐 주세요.', r.memo || ''); if (m == null) return; try { await updateDoc(doc(db, 'members', r.uid), { memo: m.trim() }); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, '메모'))))))
+        h('button', { type: 'button', class: 'mb-link', onclick: async () => { const m = prompt('메모를 고쳐 주세요.', r.memo || ''); if (m == null) return; try { await updateDoc(doc(db, 'members', r.uid), { memo: m.trim() }); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, '메모'), ' ',
+        h('button', { type: 'button', class: 'mb-link danger', onclick: async () => { if (!confirm(r.loginId + ' 계정을 회원 목록에서 지울까요? 지우면 바로 글을 볼 수 없습니다. 로그인 계정은 Firebase 콘솔 사용자 목록에서 따로 지워 주세요.')) return; try { await deleteDoc(doc(db, 'members', r.uid)); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, '지우기'))))))
     : h('p', { class: 'mb-empty' }, '아직 만든 회원 계정이 없습니다.');
   area.replaceChildren(form, h('h2', {}, '회원 목록 (' + rows.length + '명)'), table,
-    h('p', { class: 'ad-help' }, '비밀번호를 잊은 회원은 ', h('a', { href: CONSOLE_USERS, target: '_blank', rel: 'noopener' }, 'Firebase 콘솔의 사용자 목록'), '에서 그 아이디(아이디@' + ID_DOMAIN + ')를 지운 뒤, 여기서 같은 아이디로 다시 만들면 됩니다. 중지하면 그 계정은 바로 글을 볼 수 없습니다.'));
+    h('p', { class: 'ad-help' }, '비밀번호를 잊은 회원은 ', h('a', { href: CONSOLE_USERS, target: '_blank', rel: 'noopener' }, 'Firebase 콘솔의 사용자 목록'), '에서 그 아이디(아이디@' + ID_DOMAIN + ')를 지운 뒤, 여기서 같은 아이디로 다시 만들면 됩니다. 중지하면 그 계정은 바로 글을 볼 수 없습니다. 계정을 아주 없앨 때는 여기서 지우고 Firebase 콘솔 사용자 목록에서도 지워 주세요.'));
 }
 
 // ---------- 시작 ----------
