@@ -74,7 +74,7 @@ function randomPw(n = 10) { const cs = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRS
 function scrollToApp() { const y = root.getBoundingClientRect().top + window.scrollY - 110; if (window.scrollY > y) window.scrollTo(0, y); }
 function privacyNote() {
   return h('details', { class: 'mb-privacy' }, h('summary', {}, '개인정보 안내'),
-    h('p', {}, '회원 게시판은 교실에서 정한 아이디와 계정을 만든 날짜, 최근 로그인 시각만 저장합니다. 이름이나 연락처 같은 다른 개인정보는 받지 않습니다. 비밀번호는 암호화되어 Google Firebase에 저장되며 관리자도 볼 수 없습니다. 계정을 없애고 싶으시면 교실로 알려 주세요.'),
+    h('p', {}, '회원 게시판은 아이디(의사 면허번호), 관리자가 알아보기 위해 적어 둔 이름 메모, 계정을 만든 날짜와 최근 로그인 시각만 저장합니다. 연락처 같은 다른 개인정보는 받지 않습니다. 비밀번호는 암호화되어 Google Firebase에 저장되며 관리자도 볼 수 없습니다. 계정을 없애고 싶으시면 교실로 알려 주세요.'),
     h('p', {}, '관리: 가톨릭대학교 의과대학 외과학교실'));
 }
 
@@ -83,7 +83,7 @@ let POSTS = [];
 let LOADED = false;
 async function memberStatus(user) {
   if (isAdminUser(user)) return 'admin';
-  try { const s = await getDoc(doc(db, 'members', user.uid)); return s.exists() && s.data().approved === true ? 'member' : 'pending'; } catch (e) { return 'pending'; }
+  try { const s = await getDoc(doc(db, 'members', user.uid)); if (!s.exists() || s.data().approved !== true) return 'pending'; return s.data().mustChange === true ? 'mustchange' : 'member'; } catch (e) { return 'pending'; }
 }
 function viewLogin(msg) {
   const idIn = h('input', { type: 'text', id: 'mb-id', name: 'username', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', required: true });
@@ -96,7 +96,7 @@ function viewLogin(msg) {
     catch (e) { out.textContent = errMsg(e); btn.disabled = false; }
   } }, h('label', { for: 'mb-id' }, '아이디'), idIn, h('label', { for: 'mb-pw' }, '비밀번호'), pwIn, btn, out);
   root.replaceChildren(h('div', { class: 'mb-box' }, h('h2', {}, '회원 로그인'),
-    h('p', { class: 'mb-help' }, '외과학교실 교실원 전용 게시판입니다. 아이디와 비밀번호는 교실에서 한 분씩 따로 드립니다.'),
+    h('p', { class: 'mb-help' }, '외과학교실 교실원 전용 게시판입니다. 아이디는 의사 면허번호입니다. 첫 비밀번호는 교실 안내를 확인해 주시고, 처음 로그인하면 새 비밀번호를 정해 주세요.'),
     form,
     h('p', { class: 'mb-note' }, '비밀번호를 잊으셨으면 교실로 문의해 주세요. 공용 컴퓨터에서는 다 보신 뒤 꼭 로그아웃해 주세요.'),
     privacyNote()));
@@ -150,7 +150,7 @@ function openLightbox(src) {
   const ov = h('div', { class: 'mb-lightbox', role: 'dialog', 'aria-label': '사진 크게 보기', onclick: () => ov.remove() }, h('img', { src, alt: '' }), h('button', { type: 'button', class: 'mb-lb-close', 'aria-label': '닫기' }, '×'));
   document.body.append(ov);
 }
-function viewChangePw(user) {
+function viewChangePw(user, forced) {
   const cur = h('input', { type: 'password', id: 'mb-cur', autocomplete: 'current-password', required: true });
   const n1 = h('input', { type: 'password', id: 'mb-n1', autocomplete: 'new-password', required: true });
   const n2 = h('input', { type: 'password', id: 'mb-n2', autocomplete: 'new-password', required: true });
@@ -159,11 +159,20 @@ function viewChangePw(user) {
     ev.preventDefault(); out.className = 'mb-msg'; out.textContent = '';
     if (n1.value.length < 8) { out.textContent = '새 비밀번호는 8자 이상으로 정해 주세요.'; return; }
     if (n1.value !== n2.value) { out.textContent = '새 비밀번호 두 칸이 서로 다릅니다.'; return; }
-    try { await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, cur.value)); await updatePassword(user, n1.value); out.className = 'mb-msg ok'; out.textContent = '비밀번호를 바꿨습니다.'; form.reset(); }
-    catch (e) { out.textContent = errMsg(e); }
-  } }, h('label', { for: 'mb-cur' }, '지금 비밀번호'), cur, h('label', { for: 'mb-n1' }, '새 비밀번호 (8자 이상)'), n1, h('label', { for: 'mb-n2' }, '새 비밀번호 한 번 더'), n2, h('button', { type: 'submit', class: 'mb-btn' }, '바꾸기'), out);
-  root.replaceChildren(h('div', { class: 'mb-box' }, h('h2', {}, '비밀번호 바꾸기'), form,
-    h('p', { class: 'mb-back' }, h('a', { href: '#', class: 'more', onclick: ev => { ev.preventDefault(); start(auth.currentUser); } }, '게시판으로 돌아가기'))));
+    if (n1.value === cur.value) { out.textContent = '지금 비밀번호와 다른 비밀번호로 정해 주세요.'; return; }
+    try {
+      await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, cur.value));
+      await updatePassword(user, n1.value);
+      await updateDoc(doc(db, 'members', user.uid), { mustChange: false, pwChangedAt: serverTimestamp() }).catch(() => {});
+      if (forced) { start(auth.currentUser); return; }
+      out.className = 'mb-msg ok'; out.textContent = '비밀번호를 바꿨습니다.'; form.reset();
+    } catch (e) { out.textContent = errMsg(e); }
+  } }, h('label', { for: 'mb-cur' }, forced ? '받은 첫 비밀번호' : '지금 비밀번호'), cur, h('label', { for: 'mb-n1' }, '새 비밀번호 (8자 이상)'), n1, h('label', { for: 'mb-n2' }, '새 비밀번호 한 번 더'), n2, h('button', { type: 'submit', class: 'mb-btn' }, forced ? '새 비밀번호로 바꾸고 들어가기' : '바꾸기'), out);
+  root.replaceChildren(h('div', { class: 'mb-box' }, h('h2', {}, forced ? '새 비밀번호 정하기' : '비밀번호 바꾸기'),
+    forced ? h('p', { class: 'mb-help' }, '처음 로그인하셨습니다. 첫 비밀번호는 다른 사람도 알 수 있는 번호라서, 게시판을 보기 전에 본인만 아는 비밀번호로 바꿔 주세요.') : null,
+    form,
+    forced ? h('p', { class: 'mb-back' }, h('button', { type: 'button', class: 'mb-link', onclick: () => signOut(auth) }, '로그아웃'))
+      : h('p', { class: 'mb-back' }, h('a', { href: '#', class: 'more', onclick: ev => { ev.preventDefault(); start(auth.currentUser); } }, '게시판으로 돌아가기'))));
 }
 
 // ---------- 관리 화면 ----------
@@ -254,47 +263,79 @@ async function adminPosts(area) {
     : h('p', { class: 'mb-empty' }, '아직 올린 글이 없습니다.');
   area.replaceChildren(form, h('h2', {}, '올린 글'), table);
 }
+async function createMember(sa, id, pw, memo, mustChange) {
+  const cred = await createUserWithEmailAndPassword(sa, idToEmail(id), pw);
+  await setDoc(doc(db, 'members', cred.user.uid), { loginId: id, memo: memo || '', approved: true, mustChange: !!mustChange, createdAt: serverTimestamp() });
+  await signOut(sa);
+  return cred.user.uid;
+}
+function parseBulk(text) {
+  return String(text || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => { const p = l.split(/\t|,/).map(x => x.trim()); return { id: (p[0] || '').toLowerCase(), pw: p[1] || '', memo: p.slice(2).join(' ').trim() }; });
+}
 async function adminMembers(area, notice) {
   area.replaceChildren(h('p', { class: 'mb-loading' }, '불러오는 중입니다…'));
   let rows = [];
-  try { const snap = await getDocs(collection(db, 'members')); rows = snap.docs.map(d => ({ uid: d.id, ...d.data() })).sort((a, b) => String(a.loginId).localeCompare(String(b.loginId))); }
+  try { const snap = await getDocs(collection(db, 'members')); rows = snap.docs.map(d => ({ uid: d.id, ...d.data() })).sort((a, b) => String(a.memo || a.loginId).localeCompare(String(b.memo || b.loginId), 'ko')); }
   catch (e) { area.replaceChildren(h('p', { class: 'mb-msg' }, errMsg(e))); return; }
-  const idIn = h('input', { type: 'text', id: 'am-id', required: true, autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false', placeholder: '예: hong01' });
+  const idIn = h('input', { type: 'text', id: 'am-id', required: true, autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false', placeholder: '의사 면허번호' });
   const pwIn = h('input', { type: 'text', id: 'am-pw', required: true, autocomplete: 'off', spellcheck: 'false' });
-  const memoIn = h('input', { type: 'text', id: 'am-memo', maxlength: '100', placeholder: '예: 서울성모 위장관외과 홍길동' });
+  const memoIn = h('input', { type: 'text', id: 'am-memo', maxlength: '100', placeholder: '예: 홍길동 (서울성모 위장관외과)' });
+  const mcIn = h('input', { type: 'checkbox', id: 'am-mc', checked: true });
   const out = h('p', { class: 'mb-msg' + (notice ? ' ok' : ''), role: 'alert' }, notice || '');
   const createBtn = h('button', { type: 'submit', class: 'mb-btn' }, '계정 만들기');
   const form = h('form', { class: 'ad-form', onsubmit: async ev => {
     ev.preventDefault(); out.className = 'mb-msg'; out.textContent = '';
     const id = idIn.value.trim().toLowerCase();
-    if (!ID_RE.test(id)) { out.textContent = '아이디는 영문 소문자나 숫자로 시작하는 3–30자로 정해 주세요. 마침표(.), 밑줄(_), 붙임표(-)를 쓸 수 있습니다.'; return; }
-    if (pwIn.value.length < 8) { out.textContent = '비밀번호는 8자 이상으로 정해 주세요.'; return; }
+    if (!ID_RE.test(id)) { out.textContent = '아이디는 영문 소문자나 숫자로 시작하는 3–30자로 정해 주세요.'; return; }
+    if (pwIn.value.length < 6) { out.textContent = '첫 비밀번호는 6자 이상이어야 합니다(Firebase 규칙).'; return; }
     createBtn.disabled = true; let sec = null;
     try {
       sec = initializeApp(CFG, 'admin-create-' + Date.now());
-      const sa = getAuth(sec);
-      const cred = await createUserWithEmailAndPassword(sa, idToEmail(id), pwIn.value);
-      await setDoc(doc(db, 'members', cred.user.uid), { loginId: id, memo: memoIn.value.trim(), approved: true, createdAt: serverTimestamp() });
-      for (const r of rows) if (r.loginId === id && r.uid !== cred.user.uid) await deleteDoc(doc(db, 'members', r.uid)).catch(() => {});
-      await signOut(sa);
-      await adminMembers(area, '계정을 만들었습니다. 아이디 ' + id + ', 비밀번호 ' + pwIn.value + ' 를 본인에게 전해 주세요. 이 비밀번호는 지금만 보입니다.');
+      const uid = await createMember(getAuth(sec), id, pwIn.value, memoIn.value.trim(), mcIn.checked);
+      for (const r of rows) if (r.loginId === id && r.uid !== uid) await deleteDoc(doc(db, 'members', r.uid)).catch(() => {});
+      await adminMembers(area, '계정을 만들었습니다: 아이디 ' + id + '. 첫 비밀번호를 본인에게 알려 주세요.');
     } catch (e) { out.textContent = errMsg(e); createBtn.disabled = false; }
     finally { if (sec) deleteApp(sec).catch(() => {}); }
   } },
     h('h2', {}, '회원 계정 만들기'),
     h('label', { for: 'am-id' }, '아이디'), idIn,
-    h('label', { for: 'am-pw' }, '첫 비밀번호 (8자 이상)'), h('div', { class: 'ad-row' }, pwIn, h('button', { type: 'button', class: 'mb-link', onclick: () => { pwIn.value = randomPw(); } }, '자동으로 만들기')),
-    h('label', { for: 'am-memo' }, '메모 (교수님만 보는 칸, 선택)'), memoIn,
-    createBtn, out,
-    h('p', { class: 'ad-help' }, '만든 계정은 바로 열람할 수 있습니다. 회원은 로그인한 뒤 자기 비밀번호로 바꿀 수 있습니다.'));
-  const table = rows.length ? h('table', { class: 'ad-table' }, h('thead', {}, h('tr', {}, h('th', {}, '아이디'), h('th', {}, '메모'), h('th', {}, '상태'), h('th', {}, '만든 날'), h('th', {}, ''))),
-    h('tbody', {}, rows.map(r => h('tr', { class: r.approved ? null : 'is-off' }, h('td', {}, r.loginId), h('td', {}, r.memo || ''), h('td', {}, r.approved ? '열람 가능' : '중지'), h('td', {}, fmtDate(r.createdAt)),
+    h('label', { for: 'am-pw' }, '첫 비밀번호 (6자 이상)'), h('div', { class: 'ad-row' }, pwIn, h('button', { type: 'button', class: 'mb-link', onclick: () => { pwIn.value = randomPw(); } }, '자동으로 만들기')),
+    h('label', { for: 'am-memo' }, '메모 (이름 등, 교수님만 보는 칸)'), memoIn,
+    h('label', { class: 'ad-row' }, mcIn, ' 첫 로그인 때 새 비밀번호를 정하게 하기'),
+    createBtn, out);
+  const bulkIn = h('textarea', { id: 'am-bulk', rows: '8', placeholder: '한 줄에 한 명: 아이디, 첫 비밀번호, 메모\n예: 123456, 19900101, 홍길동 (서울성모 전공의)\n엑셀에서 세 칸을 복사해 붙여 넣어도 됩니다.' });
+  const bulkMc = h('input', { type: 'checkbox', id: 'am-bmc', checked: true });
+  const bulkOut = h('div', { class: 'ad-bulk-out' });
+  const bulkBtn = h('button', { type: 'button', class: 'mb-btn', onclick: async () => {
+    const list = parseBulk(bulkIn.value); if (!list.length) { bulkOut.replaceChildren(h('p', { class: 'mb-msg' }, '붙여 넣은 줄이 없습니다.')); return; }
+    bulkBtn.disabled = true; const results = []; let sec = null; const existing = new Set(rows.map(r => r.loginId));
+    const prog = h('p', { class: 'mb-help' }, '만드는 중… 0 / ' + list.length); bulkOut.replaceChildren(prog);
+    try {
+      sec = initializeApp(CFG, 'admin-bulk-' + Date.now()); const sa = getAuth(sec);
+      for (let i = 0; i < list.length; i++) {
+        const it = list[i]; let res = '';
+        if (!ID_RE.test(it.id)) res = '아이디 형식이 맞지 않음';
+        else if (it.pw.length < 6) res = '첫 비밀번호가 6자보다 짧음';
+        else if (existing.has(it.id)) res = '이미 있음 (건너뜀)';
+        else { try { await createMember(sa, it.id, it.pw, it.memo, bulkMc.checked); res = '만듦'; existing.add(it.id); } catch (e) { res = errMsg(e); if (/too-many-requests/.test((e && e.code) || '')) { results.push({ ...it, res }); break; } } }
+        results.push({ ...it, res }); prog.textContent = '만드는 중… ' + (i + 1) + ' / ' + list.length;
+      }
+    } finally { if (sec) deleteApp(sec).catch(() => {}); }
+    const made = results.filter(r => r.res === '만듦').length;
+    await adminMembers(area, '한꺼번에 만들기: ' + made + '명 만듦, ' + (results.length - made) + '명은 아래 결과를 확인해 주세요.');
+    const box = area.querySelector('.ad-bulk-out'); if (box) box.replaceChildren(h('table', { class: 'ad-table' }, h('thead', {}, h('tr', {}, h('th', {}, '아이디'), h('th', {}, '메모'), h('th', {}, '결과'))), h('tbody', {}, results.map(r => h('tr', { class: r.res === '만듦' ? null : 'is-off' }, h('td', {}, r.id), h('td', {}, r.memo), h('td', {}, r.res))))));
+  } }, '한꺼번에 만들기');
+  const bulk = h('div', { class: 'ad-form' }, h('h2', {}, '여러 명 한꺼번에 만들기'), h('label', { for: 'am-bulk' }, '명단 붙여 넣기'), bulkIn,
+    h('label', { class: 'ad-row' }, bulkMc, ' 첫 로그인 때 새 비밀번호를 정하게 하기'), bulkBtn,
+    h('p', { class: 'ad-help' }, '이미 있는 아이디는 건너뜁니다. 한 시간에 만들 수 있는 계정 수에 제한이 있어, 많이 만들 때 도중에 멈추면 잠시 뒤 다시 누르면 됩니다.'), bulkOut);
+  const table = rows.length ? h('table', { class: 'ad-table' }, h('thead', {}, h('tr', {}, h('th', {}, '아이디'), h('th', {}, '메모'), h('th', {}, '상태'), h('th', {}, '비밀번호'), h('th', {}, '만든 날'), h('th', {}, ''))),
+    h('tbody', {}, rows.map(r => h('tr', { class: r.approved ? null : 'is-off' }, h('td', {}, r.loginId), h('td', {}, r.memo || ''), h('td', {}, r.approved ? '열람 가능' : '중지'), h('td', {}, r.mustChange ? '첫 비밀번호' : '본인이 바꿈'), h('td', {}, fmtDate(r.createdAt)),
       h('td', { class: 'ad-actions' },
         h('button', { type: 'button', class: 'mb-link' + (r.approved ? ' danger' : ''), onclick: async () => { try { await updateDoc(doc(db, 'members', r.uid), { approved: !r.approved }); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, r.approved ? '중지' : '다시 허용'), ' ',
         h('button', { type: 'button', class: 'mb-link', onclick: async () => { const m = prompt('메모를 고쳐 주세요.', r.memo || ''); if (m == null) return; try { await updateDoc(doc(db, 'members', r.uid), { memo: m.trim() }); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, '메모'), ' ',
         h('button', { type: 'button', class: 'mb-link danger', onclick: async () => { if (!confirm(r.loginId + ' 계정을 회원 목록에서 지울까요? 지우면 바로 글을 볼 수 없습니다. 로그인 계정은 Firebase 콘솔 사용자 목록에서 따로 지워 주세요.')) return; try { await deleteDoc(doc(db, 'members', r.uid)); adminMembers(area); } catch (e) { alert(errMsg(e)); } } }, '지우기'))))))
     : h('p', { class: 'mb-empty' }, '아직 만든 회원 계정이 없습니다.');
-  area.replaceChildren(form, h('h2', {}, '회원 목록 (' + rows.length + '명)'), table,
+  area.replaceChildren(form, bulk, h('h2', {}, '회원 목록 (' + rows.length + '명)'), table,
     h('p', { class: 'ad-help' }, '비밀번호를 잊은 회원은 ', h('a', { href: CONSOLE_USERS, target: '_blank', rel: 'noopener' }, 'Firebase 콘솔의 사용자 목록'), '에서 그 아이디(아이디@' + ID_DOMAIN + ')를 지운 뒤, 여기서 같은 아이디로 다시 만들면 됩니다. 중지하면 그 계정은 바로 글을 볼 수 없습니다. 계정을 아주 없앨 때는 여기서 지우고 Firebase 콘솔 사용자 목록에서도 지워 주세요.'));
 }
 
@@ -304,6 +345,7 @@ async function start(user) {
   if (!user) { LOADED = false; return viewLogin(); }
   const st = await memberStatus(user);
   if (st === 'pending') return viewPending(user);
+  if (st === 'mustchange') return viewChangePw(user, true);
   return viewBoard(user, st);
 }
 onAuthStateChanged(auth, user => { start(user); });
