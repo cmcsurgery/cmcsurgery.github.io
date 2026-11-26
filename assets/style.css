@@ -523,3 +523,6 @@ main:has(> .hero:first-child){padding-top:0}
 .ad-table th,.ad-table td{border-bottom:1px solid var(--border);padding:.5rem;text-align:left;vertical-align:top}
 .ad-table tr.is-off td{color:var(--muted)}
 .ad-actions{white-space:nowrap}
+.mb-body h3{margin:1.6rem 0 .4rem;font-size:1.1rem}
+.mb-body ul{margin:.3rem 0 1rem;padding-left:1.2em}
+.mb-body li{margin:.25rem 0}

@@ -38,8 +38,24 @@ const emailToId = em => String(em || '').endsWith('@' + ID_DOMAIN) ? String(em).
 const isAdminUser = u => !!u && u.email === ADMIN_EMAIL && u.emailVerified && u.providerData.some(p => p.providerId === 'google.com');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function fmtDate(ts) { if (!ts) return ''; const d = ts.toDate ? ts.toDate() : new Date(ts); return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일'; }
+function inlineFmt(s) {
+  return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+// 간단한 서식: '## ' 소제목, '- ' 목록, **굵게**, 빈 줄로 문단, 인터넷 주소 자동 링크
 function renderBody(text) {
-  return String(text || '').replace(/\r\n/g, '\n').split(/\n{2,}/).filter(p => p.trim()).map(p => '<p>' + esc(p).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>') + '</p>').join('');
+  const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+  let html = '', inList = false, inPara = false;
+  const close = () => { if (inList) { html += '</ul>'; inList = false; } if (inPara) { html += '</p>'; inPara = false; } };
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (!line.trim()) { close(); continue; }
+    if (/^##\s+/.test(line)) { close(); html += '<h3>' + inlineFmt(line.replace(/^##\s+/, '')) + '</h3>'; continue; }
+    if (/^[-•]\s+/.test(line)) { if (inPara) { html += '</p>'; inPara = false; } if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + inlineFmt(line.replace(/^[-•]\s+/, '')) + '</li>'; continue; }
+    if (inList) { html += '</ul>'; inList = false; }
+    if (inPara) html += '<br>' + inlineFmt(line); else { html += '<p>' + inlineFmt(line); inPara = true; }
+  }
+  close();
+  return html;
 }
 function errMsg(e) {
   const c = (e && e.code) || '';
@@ -225,7 +241,7 @@ async function adminPosts(area) {
     h('h2', {}, EDIT ? '글 고치기' : '새 글 쓰기'),
     h('label', { for: 'ad-title' }, '제목'), titleIn,
     h('label', { for: 'ad-body' }, '본문'), bodyIn,
-    h('p', { class: 'ad-help' }, '빈 줄로 문단을 나눕니다. 인터넷 주소(https://...)는 자동으로 링크가 됩니다.'),
+    h('p', { class: 'ad-help' }, '빈 줄로 문단을 나눕니다. 줄 앞에 ## 를 쓰면 소제목, - 를 쓰면 목록이 되고, **글자** 는 굵게 나옵니다. 인터넷 주소(https://...)는 자동으로 링크가 됩니다.'),
     h('label', { class: 'ad-row' }, pinIn, ' 공지로 맨 위에 두기'),
     EDIT && (EDIT.images || []).length ? [h('p', { class: 'ad-help' }, '지금 붙어 있는 사진 (뺄 사진에 표시)'), keepWrap] : null,
     h('label', { for: 'ad-files' }, '사진 붙이기 (여러 장 가능)'), fileIn,
